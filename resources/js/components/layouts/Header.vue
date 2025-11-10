@@ -1,0 +1,5 @@
+<template>
+    <header class="bg-blue-500 text-white p-3 text-center font-semibold shadow">
+        Workout Scheduler
+    </header>
+</template>
