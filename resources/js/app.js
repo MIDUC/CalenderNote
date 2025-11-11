@@ -5,6 +5,8 @@ import router from './router'
 import App from './components/App.vue'
 import axios from 'axios'
 import '../css/app.css';
+import Toast, { POSITION } from 'vue-toastification';
+import 'vue-toastification/dist/index.css'; // Quan trọng: Phải import CSS này
 // ⚙️ Cấu hình axios
 axios.defaults.baseURL = 'http://127.0.0.1:8000'
 axios.interceptors.request.use(config => {
@@ -21,6 +23,19 @@ app.config.globalProperties.$axios = axios
 const pinia = createPinia()
 app.use(pinia)
 app.use(router)
-
+const options = {
+  // Bạn có thể tùy chỉnh vị trí, thời gian tự động đóng, v.v.
+  position: POSITION.TOP_RIGHT, // Hiển thị ở góc trên bên phải
+  timeout: 3000, // Tự động đóng sau 3 giây
+  closeOnClick: true,
+  pauseOnFocusLoss: true,
+  pauseOnHover: true,
+  draggable: true,
+  draggablePercent: 0.6,
+  showCloseButtonOnHover: false,
+  hideProgressBar: false,
+  icon: true,
+};
+app.use(Toast, options)
 // 🚀 Mount Vue
 app.mount('#app')
