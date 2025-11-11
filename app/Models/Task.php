@@ -23,8 +23,12 @@ class Task extends Model
         'note',
         'checkin_photo_url',
         'completed_at',
+        'require_checkin',
+        'fixed_time',
         'created_at',
         'updated_at',
+        'title',
+        'description',
     ];
 
     /**

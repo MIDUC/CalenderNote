@@ -13,7 +13,7 @@
         <div v-else class="bg-white rounded-xl shadow-md divide-y">
             <div v-for="task in tasks" :key="task.id" class="p-4 hover:bg-gray-50 transition">
                 <div class="flex justify-between items-center">
-                    <h2 class="font-semibold text-lg text-indigo-700">{{ task.schedule.title }}</h2>
+                    <h2 class="font-semibold text-lg text-indigo-700">{{ task.title }}</h2>
                     <span class="text-sm text-gray-500">
                         {{ formatDate(task.completed_at) }}
                     </span>

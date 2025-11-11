@@ -61,4 +61,15 @@ class ScheduleController extends BaseController
 
         return $this->sendResponse([], 'Schedule deleted successfully.');
     }
+
+    public function play(int $id)
+    {
+        $played = $this->repository->activateSchedule($id);
+
+        if (!$played) {
+            return $this->sendError('Schedule not found or play failed.', [], 404);
+        }
+
+        return $this->sendResponse([], 'Schedule played successfully.');
+    }
 }

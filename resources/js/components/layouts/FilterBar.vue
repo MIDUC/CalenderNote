@@ -15,14 +15,14 @@
         </select>
 
         <button @click="applyFilters" class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition">
-            Lọc
+            <SearchIcon class="w-5 h-5 inline-block mr-1" />
         </button>
     </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue'
-
+import { SearchIcon} from '@heroicons/vue/solid'
 const props = defineProps({
     filters: Object,
     sortBy: String,

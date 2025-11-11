@@ -31,6 +31,7 @@ Route::middleware('auth:sanctum')->prefix('schedule')->group(function () {
 
     // Xóa
     Route::delete('delete/{id}', [ScheduleController::class, 'delete'])->name('schedule.delete');
+    Route::post('play/{id}', [ScheduleController::class, 'play'])->name('schedule.play');
 });
 
 Route::middleware('auth:sanctum')->prefix('task')->group(function () {

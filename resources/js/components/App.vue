@@ -28,16 +28,16 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col">
       <!-- Header -->
-      <header class="p-4 bg-white border-b flex justify-between items-center shadow-sm sticky top-0 z-10">
+      <header class="p-1 bg-white border-b flex justify-between items-center shadow-sm sticky top-0 z-10">
         <button @click="toggleSidebar" class="p-2 rounded-lg hover:bg-gray-100 transition" title="Ẩn/Hiện menu">
           ☰
         </button>
-        <h2 class="text-xl font-semibold text-blue-700">{{ pageTitle }}</h2>
+        <h3 class="text-xl font-semibold text-blue-700">{{ pageTitle }}</h3>
         <div></div>
       </header>
 
       <!-- Nội dung trang -->
-      <main class="p-6 overflow-y-auto bg-gray-50 flex-1">
+      <main class="p-4 overflow-y-auto bg-gray-50 flex-1">
         <router-view />
       </main>
     </div>
