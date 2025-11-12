@@ -51,3 +51,21 @@ Route::middleware('auth:sanctum')->prefix('task')->group(function () {
     // Xóa
     Route::delete('delete/{id}', [TaskController::class, 'delete'])->name('task.delete');
 });
+
+Route::middleware('auth:sanctum')->prefix('note')->group(function () {
+
+    // Danh sách (POST để có body filter)
+    Route::post('listing', [NoteControlle::class, 'listing'])->name('note.listing');
+
+    // Tạo mới
+    // Route::post('store', [TaskController::class, 'store'])->name('task.store');
+
+    // Xem chi tiết
+    Route::get('show/{id}', [NoteController::class, 'show'])->name('note.show');
+
+    // Cập nhật
+    Route::put('update/{id}', [NoteController::class, 'update'])->name('note.update');
+
+    // Xóa
+    Route::delete('delete/{id}', [NoteController::class, 'delete'])->name('note.delete');
+});

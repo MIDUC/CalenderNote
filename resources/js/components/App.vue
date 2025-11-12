@@ -63,11 +63,11 @@ const isAuthPage = computed(() => route.path === '/login')
 
 // Map navigation
 const navItems = {
-  '/': { label: 'Trang chủ', icon: '🏠' },
+  '/home': { label: 'Trang chủ', icon: '🏠' },
   '/calendar': { label: 'Lịch', icon: '📅' },
   '/tasks': { label: 'Task', icon: '🧾' },
-  '/completed': { label: 'Hoàn thành', icon: '✅' },
-  '/failed': { label: 'Thất bại', icon: '❌' },
+  '/tasks/done': { label: 'Hoàn thành', icon: '✅' },
+  '/tasks/failed': { label: 'Thất bại', icon: '❌' },
   '/notes': { label: 'Ghi chú', icon: '📝' },
 }
 
