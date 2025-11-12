@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 abstract class BaseRepository
 {
@@ -45,17 +46,33 @@ abstract class BaseRepository
         if (!empty($with)) {
             $query->with($with);
         }
-
+        Log::debug('Listing Query', ['filters' => $filters, 'sortBy' => $sortBy, 'sortDirection' => $sortDirection, 'page' => $page, 'itemPerPage' => $itemPerPage]);
         // 🔹 Apply filters
+        $dateFields = ['task_date', 'start_date', 'end_date', 'created_at'];
+
         foreach ($filters as $field => $value) {
+            Log::debug('Applying filter', ['field' => $field, 'value' => $value]);
+
             if ($value === null || $value === '') {
                 continue;
             }
 
+            // 1. Lọc cho Mảng (WHERE IN)
             if (is_array($value)) {
                 $query->whereIn($field, $value);
-            } else {
-                $query->where($field, 'like', "%{$value}%");
+            }
+
+            // 2. ⭐ Lọc cho Ngày tháng (WHERE DATE) - Dùng danh sách đã xác định
+            else if (in_array($field, $dateFields)) {
+                // Áp dụng whereDate cho các trường trong danh sách $dateFields
+                // Giả sử tên cột trong DB trùng với tên trường ($field)
+                $query->whereDate($field, $value);
+            }
+
+            // 3. Lọc Giá trị đơn còn lại (WHERE)
+            else {
+                // Áp dụng lọc chính xác cho các trường còn lại (status, title, v.v.)
+                $query->where($field, $value);
             }
         }
 

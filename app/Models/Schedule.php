@@ -34,4 +34,19 @@ class Schedule extends Model
         'created_at',
         'updated_at',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function shares()
+    {
+        return $this->hasMany(ScheduleShare::class);
+    }
 }

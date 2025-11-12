@@ -1,6 +1,5 @@
 <template>
-    <div class="p-6">
-        <h1 class="text-2xl font-bold mb-4 text-gray-800">🧾 Task cần thực hiện</h1>
+    <div class="p-2">
 
         <!-- 🔍 Thanh tìm kiếm & sắp xếp -->
         <FilterBar :filters="filters" :sortBy="sortBy" :sortDirection="sortDirection" :sortFields="sortFields"
@@ -11,18 +10,43 @@
 
         <!-- danh sách lịch -->
         <div v-else class="bg-white rounded-xl shadow-md divide-y">
-            <div v-for="task in tasks" :key="task.id" class="p-4 hover:bg-gray-50 transition">
-                <div class="flex justify-between items-center">
-                    <h2 class="font-semibold text-lg text-indigo-700">{{ task.title }}</h2>
-                    <span class="text-sm text-gray-500">
-                        {{ formatDate(task.completed_at) }}
-                    </span>
-                    <span class="text-sm text-gray-500">
-                        <p class="text-gray-600 mt-1">{{ task.status }}</p>
-                    </span>
+            <div v-for="task in tasks" :key="task.id" class="p-3 hover:bg-gray-50 transition">
+                <div class="grid grid-cols-4">
+                    <div class="col-span-3">
+                        <div class="grid grid-cols-7">
+                            <div class="col-span-2">
+                                <p class="text-indigo-700 mt-1">{{ task.title }}</p>
+                            </div>
+                            <div class="col-span-1">
+                                <p class="text-sm text-gray-500">Ngày thực hiện: {{ formatDate(task.task_date) }}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-sm text-gray-500">Giờ thực hiện: {{ (task.fixed_time) }}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-sm text-gray-500">Giờ hoàn thành: {{ formatDate(task.completed_at) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-1">
+                        <div v-if="task.status === 'done'"
+                            class="inline-block bg-green-500 text-white text-xs px-2 py-1 rounded-full w-28 text-center font-semibold">
+                            Hoàn thành
+                        </div>
+                        <div v-if="task.status === 'failed'"
+                            class="inline-block bg-red-500 text-white text-xs px-2 py-1 rounded-full w-28 text-center font-semibold">
+                            Thất bại
+                        </div>
+                        <div v-if="task.status === 'pending'"
+                            class="inline-block bg-gray-500 text-white text-xs px-2 py-1 rounded-full w-28 text-center font-semibold">
+                            Chưa thực hiện
+                        </div>
+                        <div v-if="task.status === 'blocked'"
+                            class="inline-block bg-yellow-500 text-white text-xs px-2 py-1 rounded-full w-28 text-center font-semibold">
+                            Tạm hoãn
+                        </div>
+                    </div>
                 </div>
-                <p class="text-indigo-700 mt-1">{{ task.user.name }}</p>
-                <p class="text-gray-600 mt-1">{{ task.note }}</p>
             </div>
         </div>
 
