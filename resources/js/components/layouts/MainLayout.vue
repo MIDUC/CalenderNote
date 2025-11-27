@@ -1,4 +1,4 @@
-// Không dùn cái này đâu
+// Không dùng cái này đâu
 <template>
   <div v-if="!isAuthPage" class="flex h-screen">
     <!-- Sidebar -->

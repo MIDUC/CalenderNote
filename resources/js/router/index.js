@@ -9,6 +9,7 @@ import Tasks from '../components/pages/Tasks.vue'
 import TasksDone from '../components/pages/TasksDone.vue'
 import TasksFailed from '../components/pages/TasksFailed.vue'
 import Notes from '../components/pages/Notes.vue'
+import UserProfile from '../components/pages/UserProfile.vue'
 
 const routes = [
   { path: '/login', component: Login },
@@ -32,6 +33,7 @@ const routes = [
       { path: 'tasks/done', name: 'tasks-done', component: TasksDone },
       { path: 'tasks/failed', name: 'tasks-failed', component: TasksFailed },
       { path: 'notes', name: 'notes', component: Notes },
+      {path: 'profile', name: 'profile', component: UserProfile},
     ]
   }
 ]

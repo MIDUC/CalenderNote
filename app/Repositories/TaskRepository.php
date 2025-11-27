@@ -5,7 +5,8 @@ namespace App\Repositories;
 use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Log;
+use Illuminate\Support\Facades\Log as Log;
+
 
 class TaskRepository extends BaseRepository
 {

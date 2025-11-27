@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\NoteController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -40,7 +41,7 @@ Route::middleware('auth:sanctum')->prefix('task')->group(function () {
     Route::post('listing', [TaskController::class, 'listing'])->name('task.listing');
 
     // Tạo mới
-    // Route::post('store', [TaskController::class, 'store'])->name('task.store');
+    Route::post('store', [TaskController::class, 'store'])->name('task.store');
 
     // Xem chi tiết
     Route::get('show/{id}', [TaskController::class, 'show'])->name('task.show');
@@ -50,12 +51,18 @@ Route::middleware('auth:sanctum')->prefix('task')->group(function () {
 
     // Xóa
     Route::delete('delete/{id}', [TaskController::class, 'delete'])->name('task.delete');
+
+    // Hoàn thành
+    Route::post('complete/{id}', [TaskController::class, 'complete'])->name('task.complete');
+
+    // Bỏ thất bại
+    Route::post('fail/{id}', [TaskController::class, 'fail'])->name('task.fail');
 });
 
 Route::middleware('auth:sanctum')->prefix('note')->group(function () {
 
     // Danh sách (POST để có body filter)
-    Route::post('listing', [NoteControlle::class, 'listing'])->name('note.listing');
+    Route::post('listing', [NoteController::class, 'listing'])->name('note.listing');
 
     // Tạo mới
     // Route::post('store', [TaskController::class, 'store'])->name('task.store');

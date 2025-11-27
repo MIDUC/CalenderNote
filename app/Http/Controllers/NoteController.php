@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Note\StoreRequest;
+use App\Http\Requests\Note\UpdateRequest;
 use App\Repositories\NoteRepository;
 use Illuminate\Http\Request;
 // use App\Http\Requests\Note\StoreRequest;
@@ -21,7 +23,7 @@ class NoteController extends BaseController
     {
         $filters = $this->filterParams($request);
 
-        $data = $this->repository->listing($filters['filters'], $filters['sort_by'], $filters['sort_direction'], $filters['page'], $filters['item_per_page'], ['schedule', 'user']); // 👈 truyền mảng quan hệ cần load
+        $data = $this->repository->listing($filters['filters'], $filters['sort_by'], $filters['sort_direction'], $filters['page'], $filters['item_per_page'], ['user']); // 👈 truyền mảng quan hệ cần load
 
         return $this->sendResponse($data, 'Notes retrieved successfully.');
     }

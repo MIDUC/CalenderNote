@@ -31,4 +31,13 @@ class ScheduleRepository extends BaseRepository
         $schedule->is_active = true;
         return $schedule->save();
     }
+
+    public function getTasksByScheduleId(int $scheduleId)
+    {
+        $schedule = $this->find($scheduleId);
+        if (!$schedule) {
+            return [];
+        }
+        return $schedule->tasks; // Assuming a Schedule hasMany Tasks relationship
+    }
 }

@@ -53,6 +53,10 @@ class ScheduleController extends BaseController
      */
     public function delete(int $id)
     {
+        $list_task = $this->repository->getTasksByScheduleId($id);
+        if (count($list_task) > 0) {
+            return $this->sendError('Cannot delete schedule with associated tasks.', [], 400);
+        }
         $deleted = $this->repository->delete($id);
 
         if (!$deleted) {

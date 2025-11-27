@@ -6,6 +6,7 @@ use App\Repositories\TaskRepository;
 use Illuminate\Http\Request;
 use App\Http\Requests\Task\StoreRequest;
 use App\Http\Requests\Task\UpdateRequest;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends BaseController
 {
@@ -29,9 +30,9 @@ class TaskController extends BaseController
     public function store(StoreRequest $request)
     {
         $data = $request->validated();
-        $Task = $this->repository->store($data);
-
-        return $this->sendResponse($Task, 'Task created successfully.');
+        Log::debug('Creating task with data: ', $data);
+        $task = $this->repository->store($data);
+        return $this->sendResponse($task, 'Task created successfully.');
     }
 
     /**
@@ -60,5 +61,38 @@ class TaskController extends BaseController
         }
 
         return $this->sendResponse([], 'Task deleted successfully.');
+    }
+
+    /**
+     * Complete a Task.
+     */
+    public function complete(int $id)
+    {
+        $task = $this->repository->find($id);
+        if (!$task) {
+            return $this->sendError('Task not found.', [], 404);
+        }
+        $task->status = 'done';
+        $task->completed_at = now();
+        $saved = $task->save();
+        if (!$saved) {
+            return $this->sendError('Failed to complete the task.', [], 500);
+        }
+        return $this->sendResponse($task, 'Task completed successfully.');
+    }
+
+    public function fail(int $id)
+    {
+        $task = $this->repository->find($id);
+        if (!$task) {
+            return $this->sendError('Task not found.', [], 404);
+        }
+        $task->status = 'failed';
+        $task->completed_at = null;
+        $saved = $task->save();
+        if (!$saved) {
+            return $this->sendError('Failed to mark the task as failed.', [], 500);
+        }
+        return $this->sendResponse($task, 'Task marked as failed successfully.');
     }
 }
