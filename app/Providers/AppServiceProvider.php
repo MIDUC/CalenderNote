@@ -24,10 +24,34 @@ class AppServiceProvider extends ServiceProvider
         // Kiểm tra APP_DEBUG để chỉ chạy logic này khi ở môi trường phát triển
         if (config('app.debug')) {
             DB::listen(function ($query) {
-                // Lấy SQL thô và thay thế các dấu hỏi (?) bằng giá trị binding
-                // Đây là một cách đơn giản để tạo chuỗi SQL hoàn chỉnh để dễ đọc
-                $sql = str_replace('?', "'%s'", $query->sql);
-                $fullSql = vsprintf($sql, $query->bindings);
+                // Convert bindings to strings, handling DateTime objects, booleans, nulls, and special characters
+                $bindings = array_map(function ($binding) {
+                    if ($binding instanceof \DateTime || $binding instanceof \DateTimeInterface) {
+                        return $binding->format('Y-m-d H:i:s');
+                    }
+                    if (is_bool($binding)) {
+                        return $binding ? '1' : '0';
+                    }
+                    if (is_null($binding)) {
+                        return 'NULL';
+                    }
+                    // Escape single quotes và convert to string
+                    $stringValue = (string) $binding;
+                    // Escape single quotes for SQL
+                    $stringValue = str_replace("'", "''", $stringValue);
+                    return $stringValue;
+                }, $query->bindings);
+                
+                // Replace placeholders manually to avoid vsprintf issues with % characters
+                $sql = $query->sql;
+                $fullSql = $sql;
+                
+                foreach ($bindings as $binding) {
+                    $pos = strpos($fullSql, '?');
+                    if ($pos !== false) {
+                        $fullSql = substr_replace($fullSql, "'{$binding}'", $pos, 1);
+                    }
+                }
 
                 // Ghi log ra kênh mặc định (stack/stderr)
                 Log::info("SQL Query: {$fullSql} | Time: {$query->time}ms");

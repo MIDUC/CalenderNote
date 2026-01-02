@@ -1,87 +1,105 @@
 <template>
-  <div class="p-3">
-    <!-- <h1 class="text-2xl font-bold mb-4 text-gray-800">📅 Lịch luyện tập</h1> -->
-
+  <div class="space-y-4">
     <!-- Thanh filter & sort -->
-    <div class="grid grid-cols-3 gap-2 mb-2">
-      <div class="col-span-2">
+    <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+      <div class="flex-1 w-full lg:w-auto">
         <FilterBar :filters="filters" :sortBy="sortBy" :sortDirection="sortDirection" :sortFields="sortFields"
           @updateFilters="handleFilterUpdate" />
       </div>
-      <div class="">
-        <div class="grid grid-cols-1 justify-self-end gap-2">
-          <!-- Thêm lịch mới -->
-          <button @click="openModal('add')"
-            class="bg-green-500 shadow-lg shadow-green-500/50 rounded-full px-4 py-3 text-white font-medium">
-            Thêm mới
-          </button>
-        </div>
-      </div>
+      <button @click="openModal('add')"
+        class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-200 hover:scale-105 flex items-center gap-2 w-full lg:w-auto justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Thêm mới</span>
+      </button>
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="text-gray-500">Đang tải dữ liệu...</div>
+    <div v-if="loading" class="flex items-center justify-center py-12">
+      <div class="flex flex-col items-center gap-3">
+        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-gray-500 font-medium">Đang tải dữ liệu...</p>
+      </div>
+    </div>
 
     <!-- Danh sách lịch -->
-    <div v-else class="bg-white rounded-xl shadow-md divide-y">
-      <div v-for="schedule in schedules" :key="schedule.id" class="p-3 hover:bg-gray-50 transition">
-        <div class="grid grid-cols-3">
-          <div class="col-span-2">
-            <div class="grid grid-cols-6">
-              <div class="col-span-2 flex items-center gap-3">
-                <h2 class="font-semibold text-lg text-indigo-700">
+    <div v-else class="grid grid-cols-1 gap-4">
+      <div v-for="schedule in schedules" :key="schedule.id" 
+        class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100/50 overflow-hidden group hover:scale-[1.02]">
+        <div class="p-5 lg:p-6">
+          <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+            <!-- Main Content -->
+            <div class="flex-1 space-y-3">
+              <div class="flex items-start gap-3 flex-wrap">
+                <h2 class="font-bold text-lg lg:text-xl text-gray-800 group-hover:text-blue-600 transition-colors">
                   {{ schedule.title }}
                 </h2>
-
                 <span v-if="schedule.is_active"
-                  class="text-xs font-medium bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                  🟢 Đang chạy
+                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border border-emerald-200">
+                  <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                  Đang chạy
+                </span>
+                <span v-else
+                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                  <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                  Đã dừng
                 </span>
               </div>
-              <div class="col-span-2">
-                <div class="flex items-center mt-2 text-sm text-gray-500 space-x-2">
-                  <span>🕒 {{ schedule.fixed_time }}</span>
-                  <span v-if="schedule.repeat_type !== 'none'">
-                    🔁 Lặp lại:
-                    {{ repeatLabel(schedule.repeat_type, schedule.repeat_type) }}
+
+              <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                <div v-if="schedule.fixed_time" class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span class="font-medium">{{ schedule.fixed_time }}</span>
+                </div>
+                <div v-if="schedule.repeat_type !== 'none'" class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span class="font-medium">{{ repeatLabel(schedule.repeat_type, schedule.repeat_type) }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span class="font-medium">
+                    {{ formatDate(schedule.start_date) }}
+                    <span v-if="schedule.end_date"> - {{ formatDate(schedule.end_date) }}</span>
+                    <span v-else class="text-gray-400"> - Không giới hạn</span>
                   </span>
                 </div>
               </div>
-              <div class="col-span-2 flex justify-end">
-                <span class="text-sm text-gray-400">
-                  {{ formatDate(schedule.start_date) }} -
-                  {{ formatDate(schedule.end_date) }}
-                </span>
-              </div>
             </div>
-          </div>
 
-          <!-- Nút icon -->
-          <div class="flex justify-end gap-2 mt-2">
-            <button @click="openModal('view', schedule)"
-              class="bg-cyan-500 text-white p-3 rounded-full shadow-md flex items-center justify-center hover:opacity-90 transition">
-              <EyeIcon class="w-3 h-3" />
-            </button>
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap items-center gap-2 lg:flex-nowrap">
+              <button @click="openModal('view', schedule)"
+                class="p-3 rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-500 text-white shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200 flex items-center justify-center">
+                <EyeIcon class="w-5 h-5" />
+              </button>
 
-            <button @click="openModal('edit', schedule)"
-              class="bg-blue-500 text-white p-3 rounded-full shadow-md flex items-center justify-center hover:opacity-90 transition">
-              <PencilIcon class="w-3 h-3" />
-            </button>
+              <button @click="openModal('edit', schedule)"
+                class="p-3 rounded-xl bg-gradient-to-br from-blue-400 to-blue-500 text-white shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200 flex items-center justify-center">
+                <PencilIcon class="w-5 h-5" />
+              </button>
 
-            <button v-if="schedule.is_active" @click=" openModal('pause', schedule)"
-              class="bg-yellow-500 text-white p-3 rounded-full shadow-md flex items-center justify-center hover:opacity-90 transition">
-              <PauseIcon class="w-3 h-3" />
-            </button>
+              <button v-if="schedule.is_active" @click="openModal('pause', schedule)"
+                class="p-3 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 text-white shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200 flex items-center justify-center">
+                <PauseIcon class="w-5 h-5" />
+              </button>
 
-            <button v-if="!schedule.is_active" @click=" openModal('play', schedule)"
-              class="bg-green-500 text-white p-3 rounded-full shadow-md flex items-center justify-center hover:opacity-90 transition">
-              <PlayIcon class="w-3 h-3" />
-            </button>
+              <button v-if="!schedule.is_active" @click="openModal('play', schedule)"
+                class="p-3 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-500 text-white shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200 flex items-center justify-center">
+                <PlayIcon class="w-5 h-5" />
+              </button>
 
-            <button @click="openModal('delete', schedule)"
-              class="bg-red-500 text-white p-3 rounded-full shadow-md flex items-center justify-center hover:opacity-90 transition">
-              <TrashIcon class="w-3 h-3" />
-            </button>
+              <button @click="openModal('delete', schedule)"
+                class="p-3 rounded-xl bg-gradient-to-br from-red-400 to-red-500 text-white shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200 flex items-center justify-center">
+                <TrashIcon class="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -92,10 +110,21 @@
       :itemPerPage="itemPerPage" @page-changed="loadSchedules" @item-per-page-changed="handleItemPerPageChange" />
 
     <!-- Modal chung -->
-    <transition name="fade">
-      <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-6xl shadow-xl relative overflow-y-auto max-h-[90vh]">
-          <h2 class="text-xl font-bold mb-4">{{ modalTitle }}</h2>
+    <transition name="modal">
+      <div v-if="showModal" 
+        @click.self="closeModal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl p-6 lg:p-8 w-full max-w-4xl shadow-2xl relative overflow-y-auto max-h-[90vh] animate-modal-in">
+          <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+            <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              {{ modalTitle }}
+            </h2>
+            <button @click="closeModal" class="p-2 rounded-xl hover:bg-gray-100 transition-colors">
+              <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
 
           <div class="text-gray-700">
             <template v-if="modalType === 'view'">
@@ -287,19 +316,21 @@
           </div>
 
           <!-- Nút -->
-          <div class="mt-6 text-right flex justify-end gap-2">
-            <button @click="closeModal" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+          <div class="mt-6 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-end gap-3">
+            <button @click="closeModal" 
+              class="px-6 py-3 rounded-xl bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-all duration-200 hover:scale-105">
               Hủy
             </button>
 
             <button v-if="modalType === 'add' || modalType === 'edit'"
               @click="modalType === 'add' ? handleAdd() : handleEdit()"
-              class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+              class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200 hover:scale-105">
               {{ modalType === "add" ? "Thêm mới" : "Cập nhật" }}
             </button>
 
-            <button v-else-if="modalType === 'delete' || modalType === 'pause' || modalType === 'play'" @click="handleConfirm"
-              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+            <button v-else-if="modalType === 'delete' || modalType === 'pause' || modalType === 'play'" 
+              @click="handleConfirm"
+              class="px-6 py-3 rounded-xl bg-gradient-to-r from-red-500 to-rose-500 text-white font-semibold shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 transition-all duration-200 hover:scale-105">
               Xác nhận
             </button>
           </div>
@@ -321,7 +352,7 @@ import {
   PlusIcon,
 } from "@heroicons/vue/solid";
 import { ref, onMounted } from "vue";
-import axios from "axios";
+import api from "../../api";
 import Pagination from "../layouts/Pagination.vue";
 import FilterBar from "../layouts/FilterBar.vue";
 const schedules = ref([]);
@@ -450,8 +481,8 @@ const loadSchedules = async (newPage = 1) => {
   page.value = newPage;
   loading.value = true;
   try {
-    const res = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/api/schedule/listing`,
+    const res = await api.post(
+      `/schedule/listing`,
       {
         filters: filters.value,
         sort_by: [sortBy.value],
@@ -528,14 +559,9 @@ const handleAdd = async () => {
     }
     // --------------------------------------------------
 
-    const url = `${import.meta.env.VITE_API_BASE_URL}/api/schedule/store`;
+    const url = `/schedule/store`;
 
-    await axios.post(url, payload, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    await api.post(url, payload);
 
     // ⭐ TRƯỜNG HỢP THÀNH CÔNG: Đóng modal + Thông báo
 
@@ -626,8 +652,8 @@ const handleEdit = async () => {
 
   try {
     // ⭐ GỌI API CẬP NHẬT (Sử dụng scheduleId để xác định lịch trình)
-    const response = await axios.put(
-      `${import.meta.env.VITE_API_BASE_URL}/api/schedule/update/${scheduleId}`,
+    const response = await api.put(
+      `/schedule/update/${scheduleId}`,
       dataToSend
     );
 
@@ -647,44 +673,108 @@ const handleEdit = async () => {
 
 const handlePlay = async () => {
   if (!activeSchedule.value || !activeSchedule.value.id) {
-    // Kiểm tra an toàn
     toast.error("Không tìm thấy lịch trình để cập nhật.");
     return;
   }
 
-  // ⭐ Dữ liệu cần gửi đi ID của lịch trình
   const scheduleId = activeSchedule.value.id;
 
   try {
-    // ⭐ GỌI API CẬP NHẬT (Sử dụng scheduleId để xác định lịch trình)
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/api/schedule/play/${scheduleId}`
-    );
-
-    // Cập nhật thành công
+    const response = await api.post(`/schedule/play/${scheduleId}`);
     toast.success("Lịch trình đã được chạy thành công!");
     closeModal();
-    console.log("-> Đang gọi tải lại danh sách...");
     await loadSchedules();
-    console.log("-> Tải lại hoàn tất.");
   } catch (error) {
-    console.error("Lỗi khi cập nhật lịch trình:", error);
-    let errorMessage = "Cập nhật lịch trình thất bại. Vui lòng thử lại.";
-    // ... (Logic xử lý errorMessage tương tự handleAdd)
-    toast.error(errorMessage);
+    console.error("Lỗi khi chạy lịch trình:", error);
+    toast.error("Chạy lịch trình thất bại. Vui lòng thử lại.");
+  }
+};
+
+const handlePause = async () => {
+  if (!activeSchedule.value || !activeSchedule.value.id) {
+    toast.error("Không tìm thấy lịch trình để cập nhật.");
+    return;
+  }
+
+  const scheduleId = activeSchedule.value.id;
+
+  try {
+    const response = await api.put(`/schedule/update/${scheduleId}`, {
+      is_active: 0,
+    });
+    toast.success("Lịch trình đã được dừng thành công!");
+    closeModal();
+    await loadSchedules();
+  } catch (error) {
+    console.error("Lỗi khi dừng lịch trình:", error);
+    toast.error("Dừng lịch trình thất bại. Vui lòng thử lại.");
+  }
+};
+
+const handleDelete = async () => {
+  if (!activeSchedule.value || !activeSchedule.value.id) {
+    toast.error("Không tìm thấy lịch trình để xóa.");
+    return;
+  }
+
+  const scheduleId = activeSchedule.value.id;
+
+  try {
+    const response = await api.delete(`/schedule/delete/${scheduleId}`);
+    toast.success("Lịch trình đã được xóa thành công!");
+    closeModal();
+    await loadSchedules();
+  } catch (error) {
+    console.error("Lỗi khi xóa lịch trình:", error);
+    toast.error("Xóa lịch trình thất bại. Vui lòng thử lại.");
   }
 };
 
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
+/* Modal Animation */
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.modal-enter-from,
+.modal-leave-to {
   opacity: 0;
+}
+
+.modal-enter-from > div,
+.modal-leave-to > div {
+  transform: scale(0.95) translateY(-10px);
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-in {
+  animation: modal-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Form inputs */
+input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="number"],
+select,
+textarea {
+  @apply border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200;
+}
+
+input[type="checkbox"] {
+  @apply w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500;
 }
 </style>

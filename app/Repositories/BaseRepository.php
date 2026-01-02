@@ -133,12 +133,31 @@ abstract class BaseRepository
     {
         $record = $this->find($id);
         if (!$record) {
+            \Log::warning('Record not found for update', ['id' => $id, 'model' => get_class($this->model)]);
             return false;
         }
+        
+        \Log::info('Updating record', [
+            'id' => $id,
+            'model' => get_class($this->model),
+            'data' => $data,
+            'current_status' => $record->status ?? 'N/A',
+        ]);
+        
         try {
             $result = $record->update($data);
+            \Log::info('Update result', [
+                'id' => $id,
+                'success' => $result,
+                'updated_status' => $record->fresh()->status ?? 'N/A',
+            ]);
         } catch (\Exception $e) {
-            \Log::error('Error storing record', ['error' => $e->getMessage()]);
+            \Log::error('Error updating record', [
+                'id' => $id,
+                'model' => get_class($this->model),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             throw $e; // rethrow the exception after logging
         }
         return $result;

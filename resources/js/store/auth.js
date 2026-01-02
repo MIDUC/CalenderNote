@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import api from '../api'
 import router from '../router'
 
 export const useAuthStore = defineStore('auth', {
@@ -11,7 +11,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(credentials) {
       try {
-        const res = await axios.post('/api/login', credentials)
+        const res = await api.post('/login', credentials)
         this.token = res.data.token
         localStorage.setItem('token', this.token)
         await this.fetchUser()
@@ -25,9 +25,7 @@ export const useAuthStore = defineStore('auth', {
     async fetchUser() {
       if (!this.token) return
       try {
-        const res = await axios.get('/api/me', {
-          headers: { Authorization: `Bearer ${this.token}` }
-        })
+        const res = await api.get('/me')
         this.user = res.data
       } catch (error) {
         console.error('Fetch user failed:', error.response?.data || error)

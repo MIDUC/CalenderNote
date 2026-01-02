@@ -58,7 +58,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '../../api'
 import Pagination from '../layouts/Pagination.vue'
 import FilterBar from '../layouts/FilterBar.vue'
 
@@ -90,20 +90,14 @@ const loadTasks = async (newPage = 1) => {
     page.value = newPage
     loading.value = true
     try {
-        const res = await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL}/api/task/listing`,
+        const res = await api.post(
+            `/task/listing`,
             {
                 filters: filters.value,
                 sort_by: [sortBy.value],
                 sort_direction: [sortDirection.value],
                 page: page.value,
                 item_per_page: itemPerPage.value,
-            },
-            {
-                headers: {
-                    Accept: 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
             }
         )
 

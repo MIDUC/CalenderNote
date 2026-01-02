@@ -4,16 +4,21 @@ import { createPinia } from 'pinia'
 import router from './router'
 import App from './components/App.vue'
 import axios from 'axios'
-import '../css/app.css';
-import Toast, { POSITION } from 'vue-toastification';
-import 'vue-toastification/dist/index.css'; // Quan trọng: Phải import CSS này
-// ⚙️ Cấu hình axios
-axios.defaults.baseURL = 'http://127.0.0.1:8000'
+import '../css/app.css'
+import Toast, { POSITION } from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
+import { setupInterceptors } from './api/interceptors'
+
+// ⚙️ Cấu hình axios (fallback for direct axios usage)
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 axios.interceptors.request.use(config => {
   const token = localStorage.getItem('token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
+
+// Setup API interceptors for error handling
+setupInterceptors()
 
 // 💡 Gắn axios vào toàn bộ app (optional)
 const app = createApp(App)
