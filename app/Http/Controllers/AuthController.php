@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use App\Services\GamificationService;
 
 class AuthController extends Controller
 {
@@ -65,6 +66,13 @@ class AuthController extends Controller
             ]);
         }
 
+        // Update login date
+        $today = \Carbon\Carbon::today();
+        if (!$user->last_login_date || $user->last_login_date->lt($today)) {
+            $user->last_login_date = $today;
+            $user->save();
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -85,6 +93,105 @@ class AuthController extends Controller
     // Lấy thông tin user hiện tại
     public function me(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user();
+        
+        // Calculate XP progress (exp is already relative to current level)
+        $expNeededForNext = GamificationService::getXPNeededForCurrentLevel($user->level);
+        $canBreakthrough = GamificationService::canBreakthrough($user);
+        
+        // Check level achievements
+        \App\Http\Controllers\AchievementController::checkAchievements($user, 'level');
+        
+        $userData = $user->toArray();
+        $userData['gamification'] = [
+            'current_exp' => $user->exp,
+            'next_level_exp' => $expNeededForNext,
+            'progress_percentage' => GamificationService::getProgressToNextLevel($user),
+            'can_breakthrough' => $canBreakthrough,
+        ];
+        
+        return response()->json($userData);
+    }
+
+    /**
+     * Add online experience points (called every 5 seconds when user is online)
+     */
+    public function addOnlineExp(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        // Get online_exp_per_5s from user, default to 1 if not set
+        $expToAdd = $user->online_exp_per_5s ?? 1;
+        
+        if ($expToAdd <= 0) {
+            return response()->json([
+                'message' => 'No exp to add',
+                'user' => $user
+            ]);
+        }
+
+        // Add XP without leveling up (user must click breakthrough button)
+        GamificationService::addXPWithoutLevelUp($user, $expToAdd);
+        
+        // Calculate XP progress for response
+        $expNeededForNext = GamificationService::getXPNeededForCurrentLevel($user->level);
+        $canBreakthrough = GamificationService::canBreakthrough($user);
+        $userData = $user->fresh()->toArray();
+        $userData['gamification'] = [
+            'current_exp' => $user->exp,
+            'next_level_exp' => $expNeededForNext,
+            'progress_percentage' => GamificationService::getProgressToNextLevel($user),
+            'can_breakthrough' => $canBreakthrough,
+        ];
+
+        return response()->json([
+            'message' => 'Experience added successfully',
+            'exp_added' => $expToAdd,
+            'user' => $userData,
+            'can_breakthrough' => $canBreakthrough
+        ]);
+    }
+
+    /**
+     * Perform breakthrough - level up manually
+     */
+    public function breakthrough(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        // Perform breakthrough
+        $result = GamificationService::breakthrough($user);
+        
+        if (!$result['success']) {
+            return response()->json([
+                'message' => $result['message'],
+                'current_exp' => $result['current_exp'],
+                'required_exp' => $result['required_exp'],
+            ], 400);
+        }
+
+        // Calculate XP progress for response
+        $expNeededForNext = GamificationService::getXPNeededForCurrentLevel($user->level);
+        $userData = $user->fresh()->toArray();
+        $userData['gamification'] = [
+            'current_exp' => $user->exp,
+            'next_level_exp' => $expNeededForNext,
+            'progress_percentage' => GamificationService::getProgressToNextLevel($user),
+            'can_breakthrough' => GamificationService::canBreakthrough($user),
+        ];
+
+        return response()->json([
+            'message' => 'Breakthrough successful!',
+            'user' => $userData,
+            'breakthrough_result' => $result,
+        ]);
     }
 }
