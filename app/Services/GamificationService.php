@@ -122,8 +122,8 @@ class GamificationService
                 $leveledUp = true;
                 $levelsGained++;
                 
-                // Update level name
-                $levelName = LevelName::getNameForLevel($user->level);
+                // Update level name with tier
+                $levelName = LevelName::getNameWithTierForLevel($user->level);
                 if ($levelName) {
                     $user->level_name = $levelName;
                 }

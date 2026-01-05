@@ -194,4 +194,19 @@ class AuthController extends Controller
             'breakthrough_result' => $result,
         ]);
     }
+
+    /**
+     * Get level name for a specific level (with tier)
+     */
+    public function getLevelName(Request $request)
+    {
+        $level = $request->input('level', $request->user()?->level ?? 1);
+        
+        $levelName = \App\Models\LevelName::getNameWithTierForLevel((int)$level);
+        
+        return response()->json([
+            'level' => (int)$level,
+            'level_name' => $levelName ?? 'Phàm cảnh Tầng 1',
+        ]);
+    }
 }

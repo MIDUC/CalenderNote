@@ -106,7 +106,7 @@ class AdminController extends BaseController
 
         // Update level name if level changed
         if (isset($validated['level'])) {
-            $levelName = \App\Models\LevelName::getNameForLevel($validated['level']);
+            $levelName = \App\Models\LevelName::getNameWithTierForLevel($validated['level']);
             if ($levelName) {
                 $validated['level_name'] = $levelName;
             }

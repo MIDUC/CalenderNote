@@ -30,4 +30,24 @@ class LevelName extends Model
             ->where('level_max', '>=', $level)
             ->value('name');
     }
+
+    /**
+     * Get level name with tier for a specific level
+     * Example: Level 31 -> "Nguyên Anh Kỳ Tầng 1"
+     */
+    public static function getNameWithTierForLevel(int $level): ?string
+    {
+        $levelName = static::where('level_min', '<=', $level)
+            ->where('level_max', '>=', $level)
+            ->first();
+        
+        if (!$levelName) {
+            return null;
+        }
+        
+        // Calculate tier: tier = level - level_min + 1
+        $tier = $level - $levelName->level_min + 1;
+        
+        return $levelName->name . ' Tầng ' . $tier;
+    }
 }

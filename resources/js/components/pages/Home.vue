@@ -10,8 +10,8 @@
             <div class="player-info">
                 <div class="player-title">Người chơi</div>
                 <div class="player-level">
-                    Cấp {{ user?.level || 1 }} | Cảnh giới:
-                    {{ user?.level_name || "Phàm cảnh" }}
+                    Cảnh giới:
+                    {{ cultivationRealm }}
                 </div>
                 <div class="player-resources">
                     <span class="resource-item">
@@ -19,10 +19,6 @@
                         <span class="resource-value">{{
                             user?.currency || 0
                         }}</span>
-                    </span>
-                    <span class="resource-item">
-                        <span class="resource-label">Nguyên Thạch:</span>
-                        <span class="resource-value">{{ user?.exp || 0 }}</span>
                     </span>
                 </div>
             </div>
@@ -89,19 +85,21 @@
                         <div class="stat-item">
                             <span class="stat-label">Cảnh giới:</span>
                             <span class="stat-value">{{
-                                user?.level_name || "Luyện Khí Tầng 1"
+                                cultivationRealm
                             }}</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Huyền lực:</span>
                             <span class="stat-value">{{
-                                (user?.attack || 10) * 1000
+                                (user?.attack || 0) * 100 +
+                                (user?.max_hp || 0) * 10
                             }}</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label stat-special"
                                 >Huyết Mạch</span
                             >
+                            <span class="stat-value">{{ "Không" }}</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Nguyên Lực:</span>
@@ -317,7 +315,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useToast } from "vue-toastification";
 import { useFormat } from "../../composables";
 import { taskService } from "../../services";
@@ -396,6 +394,17 @@ const features = computed(() => {
     }
     return allFeatures.filter((f) => !f.adminOnly);
 });
+
+// Watch user level and fetch level name when it changes
+watch(
+    () => user.value?.level,
+    (newLevel) => {
+        if (newLevel) {
+            fetchLevelName(newLevel);
+        }
+    },
+    { immediate: true }
+);
 
 const fetchUser = async () => {
     try {
@@ -603,6 +612,51 @@ const canBreakthrough = computed(() => {
     // Fallback: check if current exp >= next level exp
     return currentNguyenLuc.value >= nextLevelExp.value;
 });
+
+// Calculate cultivation realm from level
+// Cache for level names
+const levelNameCache = ref({});
+const cultivationRealm = ref("Phàm cảnh");
+
+// Fetch level name from database
+const fetchLevelName = async (level) => {
+    if (!level || level <= 0) {
+        cultivationRealm.value = "Phàm cảnh";
+        return;
+    }
+
+    // Check cache first
+    if (levelNameCache.value[level]) {
+        cultivationRealm.value = levelNameCache.value[level];
+        return;
+    }
+
+    try {
+        const response = await api.get("/level-name", {
+            params: { level },
+        });
+        if (response.data?.level_name) {
+            levelNameCache.value[level] = response.data.level_name;
+            cultivationRealm.value = response.data.level_name;
+        } else {
+            cultivationRealm.value = "Phàm cảnh";
+        }
+    } catch (error) {
+        console.error("Error fetching level name:", error);
+        cultivationRealm.value = "Phàm cảnh";
+    }
+};
+
+// Watch user level and fetch level name
+watch(
+    () => user.value?.level,
+    (newLevel) => {
+        if (newLevel) {
+            fetchLevelName(newLevel);
+        }
+    },
+    { immediate: true }
+);
 
 const breakthroughLoading = ref(false);
 

@@ -31,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/online-exp', [AuthController::class, 'addOnlineExp'])->name('online.exp');
     Route::post('/breakthrough', [AuthController::class, 'breakthrough'])->name('breakthrough');
+    Route::get('/level-name', [AuthController::class, 'getLevelName'])->name('level-name');
 });
 
 // Các route API khác...
